@@ -1,19 +1,13 @@
 import { last, range } from "lodash";
-import { MenuItem, Select, Slider } from "@mui/material";
+import { Slider } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import * as math from "mathjs";
+import "katex/dist/katex.min.css";
+import * as mathquill from "react-mathquill";
+import { parseTex } from "tex-math-parser";
 
-const functions = [
-    "sin(x)",
-    "cos(x)",
-    "tan(x)",
-    "csc(x)",
-    "sec(x)",
-    "e^x",
-    "log(x)",
-    "sqrt(x)",
-].map((f) => math.parse(f));
+mathquill.addStyles();
 
 const getDerivatives = (f: math.MathNode, count: number) => {
     const derivatives: math.MathNode[] = [f];
@@ -36,29 +30,47 @@ const taylor = (f: math.MathNode, c: number, o: number) => {
 
 const [min, max, step] = [-5, 5, 0.01];
 
-const data = (f: math.MathNode, center: number, order: number) => {
+const getData = (f: math.MathNode, center: number, order: number) => {
     const g = taylor(f, center, order);
 
-    return range(min, max, step).map((x) => {
-        const actual = f.evaluate({ x });
-        const approximation = g(x);
-        const error = Math.abs(actual - approximation);
+    return range(min, max, step).flatMap((x) => {
+        try {
+            const actual = f.evaluate({ x });
+            const approximation = g(x);
+            const error = Math.abs(actual - approximation);
 
-        return {
-            x: x.toFixed?.(2),
-            actual,
-            approximation,
-            error,
-        };
+            return [
+                {
+                    x: x.toFixed?.(2),
+                    actual,
+                    approximation,
+                    error,
+                },
+            ];
+        } catch {
+            return [];
+        }
     });
 };
 
 export const App = () => {
     const [windowWidth, windowHeight] = useWindowSize();
 
-    const [func, setFunc] = useState(functions[0]);
+    const [func, setFunc] = useState("");
     const [center, setCenter] = useState(0);
     const [order, setOrder] = useState(0);
+    const [data, setData] = useState<ReturnType<typeof getData>>([]);
+
+    const debouncedFunc = useDebounce(func, 500);
+    useEffect(() => {
+        try {
+            const parsedFunc = parseTex(debouncedFunc) as any;
+            const data = getData(parsedFunc, center, order);
+            setData(data);
+        } catch {
+            setData([]);
+        }
+    }, [debouncedFunc, center, order]);
 
     return (
         <div style={{ display: "flex" }}>
@@ -68,13 +80,11 @@ export const App = () => {
                 <hr />
 
                 <p>Function</p>
-                <Select value={func} onChange={(e) => setFunc(e.target.value as any)}>
-                    {functions.map((func, index) => (
-                        <MenuItem key={index} value={func as any}>
-                            {func.toString()}
-                        </MenuItem>
-                    ))}
-                </Select>
+                <mathquill.EditableMathField
+                    style={{ width: 300 }}
+                    latex={func}
+                    onChange={(mathField) => setFunc(mathField.latex())}
+                />
 
                 <p>Center</p>
                 <Slider
@@ -100,7 +110,7 @@ export const App = () => {
             <LineChart
                 width={windowWidth - 300}
                 height={windowHeight}
-                data={data(func, center, order)}
+                data={data}
                 margin={{ top: 20, bottom: 20, left: 20, right: 20 }}
             >
                 <Tooltip formatter={(n: number) => n.toFixed?.(10)} />
@@ -156,3 +166,17 @@ const useWindowSize = () => {
 
     return [windowWidth, windowHeight];
 };
+
+function useDebounce<T>(value: T, delay?: number): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
