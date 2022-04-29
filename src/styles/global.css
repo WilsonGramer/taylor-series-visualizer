@@ -1,3 +1,21 @@
 body {
     font-family: system-ui, sans-serif;
 }
+
+a {
+    color: #007aff;
+    text-decoration: none;
+}
+
+button {
+    color: #007aff;
+    border: none;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+}
+
+button:disabled {
+    color: lightgray;
+    cursor: initial;
+}

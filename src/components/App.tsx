@@ -1,24 +1,8 @@
-import { range, times } from "lodash";
+import { range } from "lodash";
 import { MenuItem, Select, Slider } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
-
-const factorial = (n: number): number => (n < 2 ? 1 : factorial(n - 1) * n);
-
-const { sin, cos, exp, log } = Math;
-const negsin = (x: number) => -sin(x);
-const negcos = (x: number) => -cos(x);
-const nthderivlog = (n: number) => (x: number) => ((-1) ** (n - 1) * factorial(n - 1)) / x ** n;
-
-const functions = {
-    "sin(x)": [sin, cos, negsin, negcos, sin, cos, negsin, negcos, sin, cos, negsin],
-    "cos(x)": [cos, negsin, negcos, sin, cos, negsin, negcos, sin, cos, negsin],
-    "e^x": times(10, () => exp),
-    "ln(x)": [log, ...range(1, 11).map(nthderivlog)],
-};
-
-const taylor = (fs: ((c: number) => number)[], c: number, o: number) => (x: number) =>
-    fs.slice(0, o + 1).reduce((sum, f, n) => sum + (f(c) / factorial(n)) * (x - c) ** n, 0);
+import { functions, taylor } from "../helpers";
 
 const [min, max, step] = [-5, 5, 0.01];
 
@@ -27,12 +11,13 @@ const data = (func: keyof typeof functions, center: number, order: number) => {
     const g = taylor(functions[func], center, order);
 
     return range(min, max, step).map((x) => {
-        console.log(x.toString());
+        const actual = f(x);
+        const approximation = g(x);
 
         return {
             x: x.toFixed(2),
-            Actual: f(x),
-            Approximation: g(x),
+            actual: Math.abs(actual) < max ? actual : null,
+            approximation: Math.abs(approximation) < max ? approximation : null,
         };
     });
 };
@@ -48,10 +33,15 @@ export const App = () => {
         <div style={{ display: "flex" }}>
             <div style={{ width: 300, marginLeft: 20 }}>
                 <h2>Taylor Series Visualizer</h2>
-                <h3>By Wilson Gramer</h3>
+
+                <h3>
+                    Made by <a href="https://gramer.dev">Wilson Gramer</a>
+                </h3>
+
                 <hr />
 
                 <p>Function</p>
+
                 <Select value={func} onChange={(e) => setFunc(e.target.value as any)}>
                     {Object.keys(functions).map((func) => (
                         <MenuItem key={func} value={func}>
@@ -60,17 +50,29 @@ export const App = () => {
                     ))}
                 </Select>
 
-                <p>Center</p>
+                <p>
+                    Center
+                    <button onClick={() => setCenter(0)} disabled={center == 0}>
+                        reset
+                    </button>
+                </p>
+
                 <Slider
                     value={center}
                     min={min}
                     max={max}
-                    step={0.1}
+                    step={0.01}
                     valueLabelDisplay="auto"
                     onChange={(_, value) => setCenter(value as any)}
                 />
 
-                <p>Order</p>
+                <p>
+                    Order
+                    <button onClick={() => setOrder(0)} disabled={order == 0}>
+                        reset
+                    </button>
+                </p>
+
                 <Slider
                     value={order}
                     min={0}
@@ -96,7 +98,7 @@ export const App = () => {
 
                 <Line
                     type="monotone"
-                    dataKey="Actual"
+                    dataKey="actual"
                     stroke="#8884d8"
                     strokeWidth={2}
                     dot={false}
@@ -105,7 +107,7 @@ export const App = () => {
 
                 <Line
                     type="monotone"
-                    dataKey="Approximation"
+                    dataKey="approximation"
                     stroke="#82ca9d"
                     strokeWidth={2}
                     dot={false}
