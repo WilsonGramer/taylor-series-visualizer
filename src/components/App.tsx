@@ -11,13 +11,20 @@ const data = (func: keyof typeof functions, center: number, order: number) => {
     const g = taylor(functions[func], center, order);
 
     return range(min, max, step).map((x) => {
-        const actual = f(x);
-        const approximation = g(x);
+        let actual: number | null = f(x);
+        let approximation: number | null = g(x);
+
+        actual = Math.abs(actual) < max ? actual : null;
+        approximation = Math.abs(approximation) < max ? approximation : null;
+
+        const error =
+            actual != null && approximation != null ? Math.abs(actual - approximation) : null;
 
         return {
             x: x.toFixed(2),
-            actual: Math.abs(actual) < max ? actual : null,
-            approximation: Math.abs(approximation) < max ? approximation : null,
+            actual,
+            approximation,
+            error,
         };
     });
 };
@@ -99,7 +106,7 @@ export const App = () => {
                 <Line
                     type="monotone"
                     dataKey="actual"
-                    stroke="#8884d8"
+                    stroke="#10b981"
                     strokeWidth={2}
                     dot={false}
                     isAnimationActive={false}
@@ -108,9 +115,18 @@ export const App = () => {
                 <Line
                     type="monotone"
                     dataKey="approximation"
-                    stroke="#82ca9d"
+                    stroke="#38bdf8"
                     strokeWidth={2}
                     dot={false}
+                    isAnimationActive={false}
+                />
+
+                <Line
+                    type="monotone"
+                    dataKey="error"
+                    stroke="#f87171"
+                    visibility="hidden"
+                    activeDot={false}
                     isAnimationActive={false}
                 />
             </LineChart>
