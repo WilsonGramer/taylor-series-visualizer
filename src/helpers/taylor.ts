@@ -1,9 +1,8 @@
 import { range } from "lodash";
 import risingFactorial from "@stdlib/math-base-special-rising-factorial";
+import factorial from "@stdlib/math-base-special-factorial";
 
 const { sin, cos, exp, log, sqrt, cbrt, PI } = Math;
-
-const factorial = (n: number): number => (n < 2 ? 1 : factorial(n - 1) * n);
 
 const ndpolynomial = (k: number) => (n: number) => (x: number) =>
     x ** (k - n) * risingFactorial(1 + k - n, n);
