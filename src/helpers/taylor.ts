@@ -54,6 +54,22 @@ export const getFunctions = (n: number) => {
             ),
             requiresPositiveCenter: false,
         },
+        x: {
+            functions: derivatives((x) => x, ndpolynomial(1)),
+            requiresPositiveCenter: false,
+        },
+        "x^2": {
+            functions: derivatives((x) => x ** 2, ndpolynomial(2)),
+            requiresPositiveCenter: false,
+        },
+        "x^3": {
+            functions: derivatives((x) => x ** 3, ndpolynomial(3)),
+            requiresPositiveCenter: false,
+        },
+        "x^4": {
+            functions: derivatives((x) => x ** 4, ndpolynomial(4)),
+            requiresPositiveCenter: false,
+        },
         "sqrt(x)": {
             functions: derivatives(sqrt, ndpolynomial(1 / 2)),
             requiresPositiveCenter: true,

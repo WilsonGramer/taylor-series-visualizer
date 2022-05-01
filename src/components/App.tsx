@@ -35,13 +35,15 @@ const data = (func: keyof typeof functions, center: number, order: number) => {
 export const App = () => {
     const [windowWidth, windowHeight] = useWindowSize();
 
+    const sidebarWidth = 300;
+
     const [func, setFunc] = useState<keyof typeof functions>(Object.keys(functions)[0] as any);
     const [center, setCenter] = useState(0);
     const [order, setOrder] = useState(0);
 
     return (
         <div style={{ display: "flex" }}>
-            <div style={{ width: 300, marginLeft: 20 }}>
+            <div style={{ width: sidebarWidth, marginLeft: 20 }}>
                 <h2>Taylor Series Visualizer</h2>
 
                 <h3>
@@ -94,7 +96,7 @@ export const App = () => {
             </div>
 
             <LineChart
-                width={windowWidth - 300}
+                width={windowWidth - sidebarWidth}
                 height={windowHeight}
                 data={data(func, center, order)}
                 margin={{ top: 20, bottom: 20, left: 20, right: 20 }}
