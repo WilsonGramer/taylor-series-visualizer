@@ -6,7 +6,7 @@ import { getFunctions, taylor } from "../helpers";
 
 const [min, max, step] = [-5, 5, 0.01];
 
-const maxOrder = 10;
+const maxOrder = 20;
 const functions = getFunctions(maxOrder);
 
 const data = (func: keyof typeof functions, center: number, order: number) => {
