@@ -5,13 +5,11 @@ const { sin, cos, exp, log, sqrt, cbrt, PI } = Math;
 
 const factorial = (n: number): number => (n < 2 ? 1 : factorial(n - 1) * n);
 
-const recip = (x: number) => 1 / x;
-
 const ndpolynomial = (k: number) => (n: number) => (x: number) =>
     x ** (k - n) * risingFactorial(1 + k - n, n);
 
 const getDerivatives = (n: number) => {
-    const ns = range(1, n);
+    const ns = range(1, n + 1);
 
     return (f: (x: number) => number, ndf: (n: number) => (x: number) => number) => [
         f,
@@ -24,11 +22,11 @@ export const getFunctions = (n: number) => {
 
     return {
         "sin(x)": {
-            functions: derivatives(sin, (n: number) => (x: number) => sin((n * PI) / 2 + x)),
+            functions: derivatives(sin, (n) => (x) => sin((n * PI) / 2 + x)),
             requiresPositiveCenter: false,
         },
         "cos(x)": {
-            functions: derivatives(cos, (n: number) => (x: number) => cos((n * PI) / 2 + x)),
+            functions: derivatives(cos, (n) => (x) => cos((n * PI) / 2 + x)),
             requiresPositiveCenter: false,
         },
         "e^x": {
@@ -38,21 +36,21 @@ export const getFunctions = (n: number) => {
         "ln(x)": {
             functions: derivatives(
                 log,
-                (n: number) => (x: number) => ((-1) ** (n - 1) * factorial(n - 1)) / x ** n
+                (n) => (x) => ((-1) ** (n - 1) * factorial(n - 1)) / x ** n
             ),
             requiresPositiveCenter: true,
         },
         "1/x": {
             functions: derivatives(
-                recip,
-                (n: number) => (x: number) => ((-1) ** n * factorial(n)) / x ** (n + 1)
+                (x) => 1 / x,
+                (n) => (x) => ((-1) ** n * factorial(n)) / x ** (n + 1)
             ),
             requiresPositiveCenter: false,
         },
         "sin^3(x)": {
             functions: derivatives(
-                (x: number) => sin(x) ** 3,
-                (n: number) => (x: number) =>
+                (x) => sin(x) ** 3,
+                (n) => (x) =>
                     (1 / 4) * (3 * sin((n * PI) / 2 + x) - 3 ** n * sin((n * PI) / 2 + 3 * x))
             ),
             requiresPositiveCenter: false,
