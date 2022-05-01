@@ -7,8 +7,8 @@ import { functions, taylor } from "../helpers";
 const [min, max, step] = [-5, 5, 0.01];
 
 const data = (func: keyof typeof functions, center: number, order: number) => {
-    const f = functions[func][0];
-    const g = taylor(functions[func], center, order);
+    const f = functions[func].functions[0];
+    const g = taylor(functions[func].functions, center, order);
 
     return range(min, max, step).map((x) => {
         let actual: number | null = f(x);
@@ -66,7 +66,7 @@ export const App = () => {
 
                 <Slider
                     value={center}
-                    min={min}
+                    min={functions[func].requiresPositiveCenter ? 0.01 : min}
                     max={max}
                     step={0.01}
                     valueLabelDisplay="auto"
@@ -83,7 +83,7 @@ export const App = () => {
                 <Slider
                     value={order}
                     min={0}
-                    max={functions[func].length - 1}
+                    max={functions[func].functions.length - 1}
                     marks
                     valueLabelDisplay="auto"
                     onChange={(_, value) => setOrder(value as any)}
