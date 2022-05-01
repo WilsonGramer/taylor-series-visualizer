@@ -2,9 +2,12 @@ import { range } from "lodash";
 import { MenuItem, Select, Slider } from "@mui/material";
 import { useEffect, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
-import { functions, taylor } from "../helpers";
+import { getFunctions, taylor } from "../helpers";
 
 const [min, max, step] = [-5, 5, 0.01];
+
+const maxOrder = 10;
+const functions = getFunctions(maxOrder);
 
 const data = (func: keyof typeof functions, center: number, order: number) => {
     const f = functions[func].functions[0];
